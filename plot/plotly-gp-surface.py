@@ -16,9 +16,6 @@ import pickle
 
 df = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index_col=0)
 
-# train on a given layer
-# df = df[~(df["str3 :"]=="Y124")]
-# df = df[~(df["str3 :"]=="RE124")]
 mask =(df["layers :"]=="One")
 df = df.loc[mask]
 
@@ -79,55 +76,12 @@ else:
     model.fit(X_train, y_train)
     print(model.kernel_)
 
-    # f = open(model_file, 'wb')
-    # pickle.dump(model, f)
+    f = open(model_file, 'wb')
+    pickle.dump(model, f)
 
 
 # Make the prediction on the meshed x-axis (ask for MSE as well)
 y_pred, std_pred = model.predict(X_test, return_std=True)
-
-def plot_graphs(y_test, y_pred, y_std, shape=(12,7)):
-    y_test = y_test.ravel()
-    y_pred = y_pred.ravel()
-    y_std = y_std.ravel()
-    
-    # Evaluate the performance vs target values
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mse(y_test, y_pred))
-    # print("The R2 Score is {}".format(r2))
-    # print("The RMSE is {} K".format(rmse))
-
-    max_ = np.max([y_test.max(), y_pred.max()])
-    min_ = np.max([y_test.min(), y_pred.min()])
-    plt.figure(figsize=shape)
-    plt.xlabel('True apical')
-    plt.ylabel('Predicted apical')
-    plt.plot([min_, max_], [min_, max_], 'r--')
-
-    plt.errorbar(y_test, y_pred, yerr=y_std, fmt='x', elinewidth=0.5)
-
-    plt.show()
-
-    # sort indices from smallest to largest squared predictive error
-    y_std_sort = np.argsort(y_std)
-    se_sort = np.argsort(((y_pred - y_test) ** 2))
-
-    err, err_true = [], []
-    for j in range(y_test.size, 0, -1):
-        less_y_std = y_std_sort[:j]
-        less_err = se_sort[:j]
-        err.append(mse(y_pred[less_y_std], y_test[less_y_std]))
-        err_true.append(mse(y_pred[less_err], y_test[less_err]))
-
-    err=np.sqrt(err)
-    err_true=np.sqrt(err_true)    
-    plt.figure(figsize=shape)
-    plt.plot(err)
-    plt.plot(err_true)
-    plt.show()
-    
-plot_graphs(y_test, y_pred, std_pred)
-
 
 
 

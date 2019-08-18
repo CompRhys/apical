@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 16})
 
+#%%
+# plot apical distance against Tc
 df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_apical.csv", index_col=0)
 
 api_super = df_super["cu-o_a :"].values.T
@@ -13,13 +15,13 @@ tc_super = df_super["tc :"].values.T
 families = ["One", "Two", "Three"]
 
 
-fig, ax = plt.subplots(figsize = (10,7))
+fig, ax = plt.subplots(figsize=(10, 7))
 
 for fam in families:
-    mask = np.asarray(df_super["layers :"]==fam).nonzero()
-    ax.plot(api_super[mask], tc_super[mask], 
+    mask = np.asarray(df_super["layers :"] == fam).nonzero()
+    ax.plot(api_super[mask], tc_super[mask],
             label=fam,
-            marker="x", 
+            marker="x",
             linestyle="None",
             )
 
@@ -29,7 +31,7 @@ fig.tight_layout()
 # plt.show()
 fig.savefig("api-tc.pdf", bbox_inches='tight')
 
-
+#%%
 # plot c against tc
 df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_apical.csv", index_col=0)
 
@@ -40,7 +42,6 @@ selection = "layers :"
 
 # families = df_super[selection].unique()
 families = ["One", "Two", "Three"]
-
 
 fig, ax = plt.subplots(figsize = (10,7))
 plt.set_cmap('tab10')
@@ -60,7 +61,7 @@ fig.tight_layout()
 fig.savefig("c-tc.pdf", bbox_inches='tight')
 
 
-
+#%%
 ## plot a against tc
 df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_apical.csv", index_col=0)
 

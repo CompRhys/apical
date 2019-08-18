@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
+import plotly.subplots as sub
 import plotly.graph_objs as go
-import plotly.plotly as py
-from plotly import tools
+import plotly.offline as py
 from plotly.offline import plot
 
-df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_cleaned.csv", index_col=0)
+df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_apical.csv", index_col=0)
 
 latc_super = df_super["latc :"].values.T
 lata_super = df_super["lata :"].values.T
@@ -14,7 +14,7 @@ family_super = df_super["str3 :"].values
 comp_super = df_super["composition :"].values.tolist()
 ref_super = df_super.index.tolist()
 
-df_icsd = pd.read_csv("/home/rhys/PhD/lattice/data/processed/icsd_cleaned.csv", index_col=0)
+df_icsd = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index_col=0)
 
 latc_icsd = df_icsd["latc :"].values
 lata_icsd = df_icsd["lata :"].values
@@ -61,7 +61,7 @@ num = len(families)
 rows = 3
 cols = int((num+rows-1)/rows)
 
-fig = tools.make_subplots(rows=rows, cols=cols, subplot_titles=families,
+fig = sub.make_subplots(rows=rows, cols=cols, subplot_titles=families,
                             horizontal_spacing = 0.03, vertical_spacing=0.07)
 
 for i, ftype in enumerate(families):
