@@ -1,0 +1,84 @@
+
+#(C) 2019 by FIZ Karlsruhe - Leibniz Institute for Information Infrastructure.  All rights reserved.
+data_68381-ICSD
+_database_code_ICSD 68381
+_audit_creation_date 1991-07-10
+_audit_update_record 2009-02-01
+_chemical_name_systematic 'Dilanthanum cuprate'
+_chemical_formula_structural 'La2 (Cu O4)'
+_chemical_formula_sum 'Cu1 La2 O4'
+_chemical_name_structure_type CuLa2O4
+_exptl_crystal_density_diffrn 7.14
+_publ_section_title
+'Single crystal neutron diffraction study of La2 Cu0.95 Li0.05 O4'
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Physical Review B: Condensed Matter and Materials Physics' 1988 37 9343
+9351 PRBMDO
+loop_
+_publ_author_name
+'Delgado, J.M.'
+'McMullan, R.K.'
+'Diaz de Delgado, G.'
+'Wuensch, B.J.'
+'Picone, P.J.'
+'Jenssen, H.P.'
+'Gabbe, D.R.'
+_cell_length_a 5.359(1)
+_cell_length_b 5.363(1)
+_cell_length_c 13.127(2)
+_cell_angle_alpha 90.
+_cell_angle_beta 90.
+_cell_angle_gamma 90.
+_cell_volume 377.27
+_cell_formula_units_Z 4
+_symmetry_space_group_name_H-M 'B m a b'
+_symmetry_Int_Tables_number 64
+_refine_ls_R_factor_all 0.0257
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 '-x, y+1/2, -z+1/2'
+2 '-x, -y+1/2, z+1/2'
+3 '-x, y, z'
+4 '-x, -y, -z'
+5 'x, -y+1/2, z+1/2'
+6 'x, y+1/2, -z+1/2'
+7 'x, -y, -z'
+8 'x, y, z'
+9 '-x+1/2, y+1/2, -z'
+10 '-x+1/2, -y+1/2, z'
+11 '-x+1/2, y, z+1/2'
+12 '-x+1/2, -y, -z+1/2'
+13 'x+1/2, -y+1/2, z'
+14 'x+1/2, y+1/2, -z'
+15 'x+1/2, -y, -z+1/2'
+16 'x+1/2, y, z+1/2'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+La3+ 3
+Cu2+ 2
+O2- -2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+La1 La3+ 8 f 0 -.0028(2) 0.36190(3) 0.47(1) 1. 0
+Cu1 Cu2+ 4 a 0 0 0 0.37(2) 1. 0
+O1 O2- 8 e 0.25 0.25 0.0032(1) 0.66(2) 1. 0
+O2 O2- 8 f 0 0.00144(3) 0.18271(5) 1.33(3) 1. 0
+#End of TTdata_68381-ICSD

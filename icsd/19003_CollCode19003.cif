@@ -1,0 +1,93 @@
+
+#(C) 2019 by FIZ Karlsruhe - Leibniz Institute for Information Infrastructure.  All rights reserved.
+data_19003-ICSD
+_database_code_ICSD 19003
+_audit_creation_date 1980-01-01
+_audit_update_record 2010-02-01
+_chemical_name_systematic 'Dilanthanum cuprate'
+_chemical_formula_structural 'La2 (Cu O4)'
+_chemical_formula_sum 'Cu1 La2 O4'
+_chemical_name_structure_type CuLa2O4(Fmmm)
+_exptl_crystal_density_diffrn 7.05
+_publ_section_title 'The structure of La2 Cu O4 and La Sr V O4'
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Journal of Solid State Chemistry' 1973 6 526 531 JSSCBI
+loop_
+_publ_author_name
+'Longo, J.M.'
+'Raccah, P.H.'
+_cell_length_a 5.365
+_cell_length_b 5.409
+_cell_length_c 13.17
+_cell_angle_alpha 90.
+_cell_angle_beta 90.
+_cell_angle_gamma 90.
+_cell_volume 382.18
+_cell_formula_units_Z 4
+_symmetry_space_group_name_H-M 'F m m m'
+_symmetry_Int_Tables_number 69
+_refine_ls_R_factor_all 0.024
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 'x, y, -z'
+2 'x, -y, z'
+3 '-x, y, z'
+4 '-x, -y, -z'
+5 '-x, -y, z'
+6 '-x, y, -z'
+7 'x, -y, -z'
+8 'x, y, z'
+9 'x, y+1/2, -z+1/2'
+10 'x, -y+1/2, z+1/2'
+11 '-x, y+1/2, z+1/2'
+12 '-x, -y+1/2, -z+1/2'
+13 '-x, -y+1/2, z+1/2'
+14 '-x, y+1/2, -z+1/2'
+15 'x, -y+1/2, -z+1/2'
+16 'x, y+1/2, z+1/2'
+17 'x+1/2, y, -z+1/2'
+18 'x+1/2, -y, z+1/2'
+19 '-x+1/2, y, z+1/2'
+20 '-x+1/2, -y, -z+1/2'
+21 '-x+1/2, -y, z+1/2'
+22 '-x+1/2, y, -z+1/2'
+23 'x+1/2, -y, -z+1/2'
+24 'x+1/2, y, z+1/2'
+25 'x+1/2, y+1/2, -z'
+26 'x+1/2, -y+1/2, z'
+27 '-x+1/2, y+1/2, z'
+28 '-x+1/2, -y+1/2, -z'
+29 '-x+1/2, -y+1/2, z'
+30 '-x+1/2, y+1/2, -z'
+31 'x+1/2, -y+1/2, -z'
+32 'x+1/2, y+1/2, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+La3+ 3
+Cu2+ 2
+O2- -2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+La1 La3+ 8 i 0 0 0.362(1) 0.7 1. 0
+Cu1 Cu2+ 4 a 0 0 0 0.6 1. 0
+O1 O2- 8 i 0 0 0.182(3) 4. 1. 0
+O2 O2- 8 e 0.25 0.25 0 1.5 1. 0
+#End of TTdata_19003-ICSD
