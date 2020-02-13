@@ -24,7 +24,8 @@ layer_dict = {  'Bi2201' : "One",
                 }
 
 def main():
-    df = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_cleaned.csv", index_col=0)
+    df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index_col=0)
+    
 
     # maybe discard all bar highest Tc for a given composition
     # TODO: if we do do this do we want to average the in place cu-o distances as well as latc?
@@ -33,7 +34,7 @@ def main():
     # print(df.shape)
 
     # estimate apical distance from ICSD reference
-    icsd = pd.read_csv("/home/rhys/PhD/lattice/data/processed/icsd_cleaned.csv", index_col=0)
+    icsd = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index_col=0)
     families = icsd["str3 :"].unique()
 
     df = df[df["str3 :"].isin(families)]
@@ -42,7 +43,9 @@ def main():
 
     df["cu-o_a :"] = np.nan
 
-    split = ["Tl1201", "Hg1201", "Tl1212", "Tl1223"]
+    df["cid :"] = np.nan
+
+    split = ["Tl1201", "Hg1201", "Hg1223", "Tl1212", "Tl1223"]
 
     for fam in families:
         id_icsd = (icsd["str3 :"] == fam)
@@ -61,6 +64,8 @@ def main():
             cluster_super = model.predict(X)
             cluster_icsd = model.predict(x)
 
+            df.at[id_df, "cid :"] = cluster_super
+
             for cid in [0,1]:
 
                 cid_icsd = id_icsd[cluster_icsd==cid]
@@ -69,10 +74,10 @@ def main():
                 api_icsd = icsd.loc[cid_icsd,["cu-o_a :"]].values
                 c_icsd = icsd.loc[cid_icsd,["latc :"]].values
 
-                scale_c = StandardScaler()
+                scale_c = StandardScaler(with_std=False)
                 z_c = scale_c.fit_transform(c_icsd).ravel()
 
-                scale_api = StandardScaler()
+                scale_api = StandardScaler(with_std=False)
                 z_api = scale_api.fit_transform(api_icsd).ravel()
 
                 slope, intercept, r_value, p_value, std_err = stats.linregress(z_c,z_api)
@@ -101,6 +106,7 @@ def main():
 
             if fam == "T":
                 print(scale_api.inverse_transform(scale_c.transform(np.array([13.28]).reshape(-1,1)) * slope))
+                print(scale_api.inverse_transform(scale_c.transform(np.array([13.34]).reshape(-1,1)) * slope))
 
             df.loc[id_df, ["cu-o_a :"]] = api_est
 
@@ -116,7 +122,7 @@ def main():
 
     print("Number for which we have ICSD reference {}".format(len(df.index)))
 
-    df.to_csv("/home/rhys/PhD/lattice/data/processed/super_apical.csv", index=True , header=True)
+    df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_apical.csv", index=True , header=True)
 
     # # sub sample over represented families
     # df_plot = sub_sample(df, "Y123", frac=0.3)
@@ -127,32 +133,43 @@ def main():
     # print(df_plot["str3 :"].value_counts())
     # print(df_plot["str3 :"].value_counts().index)
 
-    # df_plot.to_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index=True , header=True)
+    # df_plot.to_csv("/home/reag2/PhD/first-year/apical/processed/super_plot.csv", index=True , header=True)
 
     # add these points back in manually for the n=3 materials as they have lower Tc but are needed to see the trend.
-    df_manual = df.loc[[8670,8671,6003,4526]]
+    # df_manual = df.loc[[8670,8671,6003,4526]]
 
     # TAKE THE TOP 20% FOR EACH FAMILY
+    # break this down to work for Ba and Sr sub-families
     for fam in families:
-        id_df = (df["str3 :"] == fam)
-        id_df = id_df.index.values[id_df.values]
-        X = df.loc[id_df, ["tc :"]].values.ravel()
-        sort = np.argsort(X)
-        id_df = id_df[sort]
-        id_df = id_df[:-int(len(id_df)/5)]
-        df = df.drop(id_df)
+
+        if fam in split:
+            for cid in [0,1]:
+                cid_df = (df["str3 :"] == fam) & (df["cid :"] == cid)
+                cid_df = cid_df.index.values[cid_df.values]
+                X = df.loc[cid_df, ["tc :"]].values.ravel()
+                sort = np.argsort(X)
+                cid_df = cid_df[sort]
+                cid_df = cid_df[:-int(len(cid_df)/5)]
+                df = df.drop(cid_df)
+
+        else:
+            id_df = (df["str3 :"] == fam)
+            id_df = id_df.index.values[id_df.values]
+            X = df.loc[id_df, ["tc :"]].values.ravel()
+            sort = np.argsort(X)
+            id_df = id_df[sort]
+            id_df = id_df[:-int(len(id_df)/5)]
+            df = df.drop(id_df)
 
     df = pd.concat([df, df_manual,])
 
-    df.to_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index=True , header=True)
+    df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_top.csv", index=True , header=True)
 
     # TAKE THE TOP 20% ON A GRID
 
     # apical_bin = pd.cut(df["cu-o_a :"].values, 50)
     # planar_bin = pd.cut(df["cu-o_p :"].values, 50)
-
     # sep = df.groupby([apical_bin, apical_bin])
-
 
     # print(sep.to_string())
 
