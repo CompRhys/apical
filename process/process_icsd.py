@@ -4,10 +4,9 @@ import os
 import sys
 import re
 
-df = pd.read_csv("/home/rhys/PhD/datasets/superconductivity/ICSD.csv", index_col=1)
+df = pd.read_csv("/home/reag2/PhD/datasets/superconductivity/ICSD/ICSD.csv", index_col=1)
 
 anom_index = [  # id        reason
-                78252, # latc too high, probably due to phase change
                 68894, # latc too low, due to large doping of Ni for Cu
                 63209, # appears highly anomalous, original paper in german doesn't give parameters directly
                 91466, # Cu-O_a very low
@@ -42,14 +41,12 @@ anom_index = [  # id        reason
                 66795, # RE247 
             ]
 
-
-
 df = df.drop(anom_index)
 
 # super_ = ['Y123', 'Bi2212', 'T', 'RE123', 'Y124', 'Hg1201', 'Tl1212', 'Hg1223',
 #        'Hg1212', 'RE124', 'Bi2201', 'Tl1201', 'Hg2212', 'Tl1223', 'Tl2201', 'Tl2212']
 
-df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_cleaned.csv", index_col=0)
+df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index_col=0)
 
 fam_counts = df["str3 :"].value_counts()
 common = fam_counts.index[fam_counts.values > 5]
@@ -87,5 +84,4 @@ print("{} points remain".format(len(df)))
 # df["str3 :"] =  df["str3 :"].replace("Tl2212", "2212" )
 # df["str3 :"] =  df["str3 :"].replace("Hg2212", "2212" )
 
-
-df.to_csv("/home/rhys/PhD/lattice/data/processed/icsd_cleaned.csv", index=True , header=True)
+df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index=True , header=True)

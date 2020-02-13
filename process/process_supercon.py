@@ -34,16 +34,16 @@ def main():
     df = df[pd.notnull(df["tc :"])]
     print("Tc reported for {} materials".format(len(df.index)))
 
+    # discard low Tc samples
     df = df[df["tc :"]>10]
     print("Tc > 10 for {} materials".format(len(df.index)))
-
 
     # Remove elements that don"t contain Copper and Oxygen
     df = df[df[elements].apply(lambda r: r.str.contains("Cu").any(), axis=1)]
     print("Of these {} are contain copper".format(len(df.index)))
 
-    # df = df[df[elements].apply(lambda r: r.str.contains("O").any(), axis=1)]
-    # print("Of these {} are also contain oxygen".format(len(df.index)))
+    df = df[df[elements].apply(lambda r: r.str.contains("O").any(), axis=1)]
+    print("Of these {} are also contain oxygen".format(len(df.index)))
 
     # Combine the various oxygen entries into composition string
     df = merge_oz(df)
@@ -56,17 +56,23 @@ def main():
     # remove points manually identified as being errors
     df = manual_removals(df)
 
+    # discard unwanted columns from the dataframe
     df = df[clean]
 
-    df.to_csv("/home/reag2/PhD/lattice/data/processed/super_cuprates.csv", index=True , header=True)
+    # save a file with all the expected cuprate
+    df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cuprates.csv", index=True , header=True)
 
     # df["lata :"] = np.nanmean([df["lata :"].values, df["latb :"].values], axis=0)
     df["lata "] = df[["lata :", "latb :"]].mean(axis=1)
 
+    # select only data for which the lattice parameters are reported
     df = df[pd.notnull(df["lata :"])]
     df = df[pd.notnull(df["latc :"])]
-
     print("lattice information is recorded for {}".format(len(df.index)))
+
+    # select only data for which the family information is recorded
+    # TODO: we can potentially estimate families by whether the one-hot
+    #       norm is within a given tolerence
 
     df = df[pd.notnull(df["str3 :"])]
     print("families information is recorded for {}".format(len(df.index)))
@@ -74,17 +80,19 @@ def main():
     # attempt to constrain the familiy types
     df = standardise_families(df)
 
+    # only take families for which the total number is large
     fam_counts = df["str3 :"].value_counts()
-    print(fam_counts.to_string())
     common = fam_counts.index[fam_counts.values > 10]
     df = df[df["str3 :"].isin(common)]
+    print(df["str3 :"].value_counts().to_string())
 
+    # exclude 247 structures as they are alternative 1212/2212 and so cannot be compared directly
     df = df[~(df["str3 :"]=="Y247")]
     df = df[~(df["str3 :"]=="RE247")]
 
     df = df.sort_index()    
 
-    df.to_csv("/home/reag2/PhD/lattice/data/processed/super_cleaned.csv", index=True , header=True)
+    df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index=True , header=True)
 
     print("Number for which we have 10 or more samples {}".format(len(df.index)))
 
