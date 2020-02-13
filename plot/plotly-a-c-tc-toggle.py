@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 import colorlover as cl
 
 
-df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_apical.csv", index_col=0)
+df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_apical.csv", index_col=0)
 
 api_super = df_super["cu-o_a :"].values.T
 plnr_super = df_super["lata :"].values.T
@@ -74,8 +74,8 @@ for fam in families:
     # mask = np.asarray(df_super["str3 :"]==fam).nonzero()
     mask = np.asarray(df_super["layers :"]==fam).nonzero()
 
-    # trace = go.Scatter3d(x=plnr_super[mask], y=api_super[mask], z=tc_super[mask],
-    trace = go.Scatter(x=api_super[mask], y=tc_super[mask],
+    trace = go.Scatter3d(x=plnr_super[mask], y=api_super[mask], z=tc_super[mask],
+    # trace = go.Scatter(x=api_super[mask], y=tc_super[mask],
                         mode = 'markers',
                         text=hover_super[mask].tolist(),
                         hoverinfo='text',

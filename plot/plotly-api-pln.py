@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 from plotly import tools
 import colorlover as cl
 
-df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index_col=0)
+df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_plot.csv", index_col=0)
 
 latc_super = df_super["cu-o_a :"].values.T
 lata_super = df_super["cu-o_p :"].values.T
@@ -15,8 +15,7 @@ family_super = df_super["str3 :"].values.tolist()
 comp_super = df_super["composition :"].values.tolist()
 ref_super = df_super.index.tolist()
 
-df_icsd = pd.read_csv("/home/rhys/PhD/lattice/data/processed/icsd_cleaned.csv", index_col=0)
-
+df_icsd = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index_col=0)
 
 latc_icsd = df_icsd["cu-o_a :"].values
 lata_icsd = df_icsd["cu-o_p :"].values
@@ -109,5 +108,5 @@ layout = go.Layout( title=go.layout.Title(
                     )
 
 fig_super = go.Figure(data=trace_list, layout=layout)
-plot(fig_super, filename='pln-api.html', include_plotlyjs='cdn',)
+plot(fig_super, filename='plot/figures/pln-api.html', include_plotlyjs='cdn',)
 

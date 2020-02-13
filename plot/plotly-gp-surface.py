@@ -6,15 +6,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_squared_error as mse
 
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression, HuberRegressor
+
 from plotly.offline import plot
 import plotly.graph_objs as go
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RationalQuadratic as RQ, RBF, DotProduct as Dot, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RationalQuadratic as RQ, \
+                                            RBF, DotProduct as Dot, \
+                                            ConstantKernel as C, \
+                                            PairwiseKernel
 
 import pickle
 
-df = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index_col=0)
+df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_top.csv", index_col=0)
 
 mask =(df["layers :"]=="One")
 df = df.loc[mask]
@@ -42,9 +49,9 @@ hover = np.array(hover)
 
 y = np.vstack((y, hover)).T
 
-print(X.shape, y.shape)
 # Split data into training and test sets (50 is good)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+# X_train, y_train = X, y
 
 train_hover = y_train[:,1].astype(str) 
 test_hover = y_test[:,1].astype(str)
@@ -59,30 +66,31 @@ X_test = scaler.transform(X_test)
 
 model_file = 'fitted-gp-one.pickle'
 
-if os.path.isfile(model_file):
+# if os.path.isfile(model_file):
+if 0 == 1:
     f = open(model_file, 'rb')
     model = pickle.load(f) 
 else:
     # # Instantiate a Gaussian Process model
     # kernel = C() * Dot() * (RBF(length_scale_bounds=(1e-1, 1e2)) + RQ(alpha_bounds=(1e-2,1), length_scale_bounds=(1e-5, 1e3)))
-    # kernel = ( C() * Dot () * Dot () * Dot () + C() * Dot () * Dot () + C() * Dot () + C() )
-    # kernel = RQ(alpha_bounds=(1e-2,1), length_scale_bounds=(1e-5, 1e3)) + RBF()
-    # kernel = RBF() + RBF() 
-    kernel = RBF() + RQ() 
-    # kernel = RQ() + RQ()
+    # kernel = C() * Dot() * (RBF() + RQ())
+    # kernel = RQ(alpha_bounds=(1e-2,1), length_scale_bounds=(1e-5, 1e3)) + RBF() 
+    # kernel = RBF() + RQ() 
+    # kernel = RBF()
+    # kernel = RQ()
+    # kernel = PairwiseKernel(metric='polynomial', pairwise_kernels_kwargs={'degree':2})
+    kernel = C() * Dot()
     model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=100)
+    # model = Pipeline([('poly', PolynomialFeatures(degree=4)),
+    #                ('reg', HuberRegressor(fit_intercept=False))])
+
 
     # Fit to data using Maximum Likelihood Estimation of the parameters
     model.fit(X_train, y_train)
-    print(model.kernel_)
+    # print(model.kernel_)
 
-    f = open(model_file, 'wb')
-    pickle.dump(model, f)
-
-
-# Make the prediction on the meshed x-axis (ask for MSE as well)
-y_pred, std_pred = model.predict(X_test, return_std=True)
-
+    # f = open(model_file, 'wb')
+    # pickle.dump(model, f)
 
 
 num = 50
@@ -103,8 +111,11 @@ points = scaler.transform(points)
 trace_list = []
 
 # predict for test set
+# Make the prediction on the meshed x-axis (ask for MSE as well)
 X_test = scaler.inverse_transform(X_test)
 
+y_pred, std_pred = model.predict(X_test, return_std=True)
+# y_pred = model.predict(X_test)
 r2 = r2_score(y_test, y_pred)
 rmse = np.sqrt(mse(y_test, y_pred))
 print("The R2 Score is {}".format(r2))
@@ -143,11 +154,12 @@ trace_list.append(trace)
 x = np.array([1.88, 2.43]).reshape(1,-1)
 x = scaler.transform(x) 
 y_pred, sigma = model.predict(x, return_std=True)
+# y_pred = model.predict(x)
 x = scaler.inverse_transform(x)
 
 print("Predicted Tc for VAN point {} +/- {}".format(y_pred[0], sigma[0]))
 
-trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=y_pred.ravel(),
+trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=[50],
                     mode = 'markers',
                     marker = dict(
                         size = 5,
@@ -162,6 +174,7 @@ trace_list.append(trace)
 
 # plot gp surface
 surf_pred, sigma = model.predict(points, return_std=True)
+# surf_pred = model.predict(points)
 surf_pred = np.reshape(surf_pred,(num, num))
 sigma = np.reshape(sigma,(num, num))
 
@@ -177,16 +190,19 @@ trace = go.Surface(x=xx, y=yy, z=surf_pred,
 trace_list.append(trace)
 
 layout_3d = go.Layout(
+                    template='none',
                     title=go.layout.Title(
                             text='Gaussian Process model for one layer Cuprates',
                             xref='paper',
                             x=0),
                     scene = dict(
                         xaxis = dict(
+                            # gridcolor="grey",
+                            # showbackground=False,
+                            # showgrid=False,
+                            # zeroline=False,
+                            # showline=False,
                             title='In-Plane Distance / Å'),
-                            showgrid=False,
-                            zeroline=False,
-                            showline=False,
                         yaxis = dict(
                             title='Apical Distance / Å'),
                         zaxis = dict(

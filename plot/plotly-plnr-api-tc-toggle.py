@@ -6,7 +6,8 @@ import plotly.graph_objs as go
 import colorlover as cl
 
 
-df_super = pd.read_csv("/home/rhys/PhD/lattice/data/processed/super_plot.csv", index_col=0)
+# df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_apical.csv", index_col=0)
+df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_plot.csv", index_col=0)
 
 api_super = df_super["cu-o_a :"].values.T
 plnr_super = df_super["cu-o_p :"].values.T
