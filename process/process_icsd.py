@@ -4,42 +4,52 @@ import os
 import sys
 import re
 
-df = pd.read_csv("/home/reag2/PhD/datasets/superconductivity/ICSD/ICSD.csv", index_col=1)
+df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_scrape.csv", index_col=0)
+
+sqrt2 = np.sqrt(2)
+ortho = lambda x: x/sqrt2 if x > 5 else x
+comparable = np.vectorize(ortho)
+
+df["lata* :"] = comparable(df["lata :"].values)
 
 anom_index = [  # id        reason
-                68894, # latc too low, due to large doping of Ni for Cu
-                63209, # appears highly anomalous, original paper in german doesn't give parameters directly
-                91466, # Cu-O_a very low
-                68188, # Cu-O_a very low 
-                74166, # Cu-O_a very low
-                79254, # Cu-O_a very low
-                155341, # Cu-O_a appears anomolous Tl2201
-                74259, 74261, 74262, # Cu-O_a appears anomolous Y124, RE124 same source, systematic error?
+                74094, # Hg1201 half Pb an low apical distance
 
-                75155,74276,80710, # Bi2212 inclusion of La not reflected in supercon
-                79774, 72584, 75746, 75747, 75750, 82343, # Tl1212 inclusion of Pr and Nd not reflected in supercon
-                69906, 69909, 69937, 80656, 81165, 202898,  # Tl1201 too much Sr compared to supercon
-                89161, 91157, 91158, # Tl2212 too much Sr compared to supercon
-                50264, # Hg1201
-                78679, # Hg2212 extra Cu included
-                74426, 75713, # Both Y124 with no doping but destroy the trend we see.
-                63322, # Y123 no doping but signifcantly higher than expected apical distance. inconsistent with DFT and other experiments
-                56509, # Y123 containing 0.4 Gd for Y 
-                64658, # Y123 containing 0.5 Pd for Cu
-                83181, 83183, 89135, # Hg2212 
-                72212, # Bi2212 however we have (Bi0.5Pb0.5)2212 
-                63210, # Bi2212 high Sr content and low Cu-Oa
-                68672, # Bi2212 high Sr content and low Cu-Oa
-                71825, # Bi2212 Cu-O_a very low 2.2 cf 2.5
-                190110, 161679, # Tl2212 Ca ~0.38 instead of Tl and low Cu-O_a
-                91162, # Tl2212 very hetrogenous structure no obvious trend as to why low Cu-O_a
-                64645, # Tl2212 excess copper gives rise to very large Cu-O_a
-                73654, # Bi2201 BiPbBaLaCu system not reflected in supercon
-                66300, # excessively large lata when compared to similar systems, poission/jahn-teller effect?
-                67334, # Tl2201 large apical for low c 
-                41962, # Tl2201 large apical for low c high oxygen doping
-                66795, # RE247 
+                87039, #Hg2212 not reflective of SC data
+                91265, 91266, 91267, # Hg2212 lata small cf supercon
+                89136, 89134, 89135, # Hg2212 api smaller than expected not linear corr to latc
+                83181, 83183, # Hg2212 api smaller than expected not linear corr to latc
+
+                62947, 62948, 180517, 85371, 180519, 236446, 10252, # T low apical for given La block
+                92374, 92378, # T high apical for given La block
+                108997, #T api too small
+
+                84637, 91292, 167104, 203138, 80723, #Tl1201 - doesn't match supercon density
+                86427, 202898, 81165, #Tl1201 - doesn't match supercon density
+                69937, 69938, #Tl1201 - doesn't match supercon density
+                69906, 69909, 80656, #Tl1201 - doesn't match supercon density
+                68582, # Tl2201 small lata for latc
+
+                
+                75745, 75746, 75747, 75748, 75749, 75750, 75751, # Tl1211 doesn't match supercon density
+                74164, 74165, 74166, 74167, 74168, # Tl1211 doesn't match supercon density
+                72584, 72585, 72586, # Tl1211 doesn't match supercon density
+                74274, 74275, # Tl1211 doesn't match supercon density
+                83811, 75902, 72731, 65859, 39670, 82343, 69921, # Tl1211 doesn't match supercon density   
+
+                65323, 65324, # Tl2201 - high apical 
+
+                91157, 91158, # Tl2212 too much Sr compared to supercon
+
+                72230, # RE123
+
+                80710, # Bi2212 inclusion of La not reflected in supercon
+                91466, 174156, # Bi2212 Cu-O_a very low
+ 
             ]
+
+df_anom = df[df.index.isin(anom_index)]
+df_anom.to_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_removed.csv", index=True , header=True)
 
 df = df.drop(anom_index)
 
@@ -49,9 +59,10 @@ df = df.drop(anom_index)
 df_super = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index_col=0)
 
 fam_counts = df["str3 :"].value_counts()
-common = fam_counts.index[fam_counts.values > 5]
+common = fam_counts.index[fam_counts.values > 1]
 
 super_ = list(set(common) & set(df_super["str3 :"].unique()))
+print(set(super_).difference(set(df["str3 :"].unique())))
 # super_ = [x for x in a if super_ != "RE247"]
 
 temp = len(df)
@@ -64,24 +75,5 @@ print("Dropping {} manually identified points".format(len(anom_index)))
 print("Dropping {} points due to small samples".format(temp))
 print("{} points dropped in total".format(len(anom_index)+temp))
 print("{} points remain".format(len(df)))
-
-# df["str3 :"] =  df["str3 :"].replace("RE123", "Y123" )
-# df["str3 :"] =  df["str3 :"].replace("RE124", "Y124" )
-
-# df["str3 :"] =  df["str3 :"].replace("Tl1201", "1201" )
-# df["str3 :"] =  df["str3 :"].replace("Hg1201", "1201" )
-
-# df["str3 :"] =  df["str3 :"].replace("Tl1212", "1212" )
-# df["str3 :"] =  df["str3 :"].replace("Hg1212", "1212" )
-
-# df["str3 :"] =  df["str3 :"].replace("Hg1223", "1223" )
-# df["str3 :"] =  df["str3 :"].replace("Tl1223", "1223" )
-
-# # df["str3 :"] =  df["str3 :"].replace("Bi2201", "2201" )
-# df["str3 :"] =  df["str3 :"].replace("Tl2201", "2201" )
-
-# # df["str3 :"] =  df["str3 :"].replace("Bi2212", "2212" )
-# df["str3 :"] =  df["str3 :"].replace("Tl2212", "2212" )
-# df["str3 :"] =  df["str3 :"].replace("Hg2212", "2212" )
 
 df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index=True , header=True)

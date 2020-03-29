@@ -4,6 +4,7 @@ from scipy import stats
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
+from sklearn.linear_model import HuberRegressor, LinearRegression
 
 layer_dict = {  'Bi2201' : "One", 
                 'Bi2212' : "Two",
@@ -23,15 +24,31 @@ layer_dict = {  'Bi2201' : "One",
                 'Y124'   : "Two",
                 }
 
-def main():
-    df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index_col=0)
-    
+type_dict = {  'Bi2201' : "Bi", 
+                'Bi2212' : "Bi",
+                'Hg1201' : "Hg",
+                'Hg1212' : "Hg",
+                'Hg1223' : "Hg",
+                'Hg2212' : "Hg",
+                'RE123'  : "RE",
+                'RE124'  : "RE",
+                'T'      : "RE",   
+                'Tl1201' : "Tl",
+                'Tl1212' : "Tl",
+                'Tl1223' : "Tl",
+                'Tl2201' : "Tl",
+                'Tl2212' : "Tl",
+                'Y123'   : "RE",
+                'Y124'   : "RE",
+                }
 
-    # maybe discard all bar highest Tc for a given composition
-    # TODO: if we do do this do we want to average the in place cu-o distances as well as latc?
-    # df = df.sort_values(by=["composition :","tc :"], ascending=False) 
-    # df = df[~df.duplicated("composition :")]
-    # print(df.shape)
+def main():
+
+    sqrt2 = np.sqrt(2)
+    ortho = lambda x: x/sqrt2 if x > 5 else x
+    comparable = np.vectorize(ortho)
+
+    df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index_col=0)
 
     # estimate apical distance from ICSD reference
     icsd = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cleaned.csv", index_col=0)
@@ -40,146 +57,81 @@ def main():
     df = df[df["str3 :"].isin(families)]
 
     df["layers :"] = df["str3 :"].map(layer_dict).values
+    df["types :"] = df["str3 :"].map(type_dict).values
 
     df["cu-o_a :"] = np.nan
 
     df["cid :"] = np.nan
 
-    split = ["Tl1201", "Hg1201", "Hg1223", "Tl1212", "Tl1223"]
-
-    for fam in families:
-        id_icsd = (icsd["str3 :"] == fam)
-        id_df = (df["str3 :"] == fam)
-
-        if fam in split:
-            id_df = id_df.index.values[id_df.values]
-            X = df.loc[id_df, ["lata :", "latc :"]].values
-
-            id_icsd = id_icsd.index.values[id_icsd.values]
-            icsd.drop_duplicates(inplace=True)
-            x = icsd.loc[id_icsd, ["lata :", "latc :"]].values
-
-            model = KMeans(n_clusters=2, random_state=0).fit(X)
-
-            cluster_super = model.predict(X)
-            cluster_icsd = model.predict(x)
-
-            df.at[id_df, "cid :"] = cluster_super
-
-            for cid in [0,1]:
-
-                cid_icsd = id_icsd[cluster_icsd==cid]
-                cid_df = id_df[cluster_super==cid]
-
-                api_icsd = icsd.loc[cid_icsd,["cu-o_a :"]].values
-                c_icsd = icsd.loc[cid_icsd,["latc :"]].values
-
-                scale_c = StandardScaler(with_std=False)
-                z_c = scale_c.fit_transform(c_icsd).ravel()
-
-                scale_api = StandardScaler(with_std=False)
-                z_api = scale_api.fit_transform(api_icsd).ravel()
-
-                slope, intercept, r_value, p_value, std_err = stats.linregress(z_c,z_api)
-
-                c_df = df.loc[cid_df,["latc :"]].values
-
-                api_est = scale_api.inverse_transform(scale_c.transform(c_df) * slope)
-
-                df.loc[cid_df, ["cu-o_a :"]] = api_est
-
-        else:
-            api_icsd = icsd.loc[id_icsd,["cu-o_a :"]].values
-            c_icsd = icsd.loc[id_icsd,["latc :"]].values
-
-            scale_c = StandardScaler()
-            z_c = scale_c.fit_transform(c_icsd).ravel()
-
-            scale_api = StandardScaler()
-            z_api = scale_api.fit_transform(api_icsd).ravel()
-
-            slope, intercept, r_value, p_value, std_err = stats.linregress(z_c,z_api)
-
-            c_df = df.loc[id_df,["latc :"]].values
-
-            api_est = scale_api.inverse_transform(scale_c.transform(c_df) * slope)
-
-            if fam == "T":
-                print(scale_api.inverse_transform(scale_c.transform(np.array([13.28]).reshape(-1,1)) * slope))
-                print(scale_api.inverse_transform(scale_c.transform(np.array([13.34]).reshape(-1,1)) * slope))
-
-            df.loc[id_df, ["cu-o_a :"]] = api_est
-
-
     # estimate in plane distance from lattice parameters
     ortho = lambda x: x/np.sqrt(2) if x > 5 else x
     comparable = np.vectorize(ortho)
 
-    df["lata :"] = comparable(df["lata :"])
-    df["cu-o_p :"] = df["lata :"].values/2.
+    df["lata* :"] = comparable(df["lata :"])
+    df["cu-o_p :"] = df["lata* :"].values/2.
+    icsd["lata* :"] = comparable(icsd["lata :"])
 
-    # df["str3 :"] = df["str3 :"].map(simple_names).values
+    huber = HuberRegressor()
+
+    for fam in families:
+        id_df = (df["str3 :"] == fam)
+        id_icsd = (icsd["str3 :"] == fam)
+
+        api_icsd = icsd[id_icsd][["cu-o_a :"]].values
+        c_icsd = icsd[id_icsd][["latc :","lata* :"]].values
+
+        huber.fit(c_icsd,api_icsd.ravel())
+
+        c_df = df[id_df][["latc :", "lata* :"]].values
+
+        api_est = huber.predict(c_df)
+
+        if fam == "T":
+            print(huber.predict(((13.28, 3.76),)))
+            print(huber.predict(((13.22, 3.78),)))
+            print(huber.predict(((13.20, 3.79),)))
+
+        df.loc[id_df,["cu-o_a :"]] = api_est
 
     print("Number for which we have ICSD reference {}".format(len(df.index)))
 
     df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_apical.csv", index=True , header=True)
 
-    # # sub sample over represented families
-    # df_plot = sub_sample(df, "Y123", frac=0.3)
-    # df_plot = sub_sample(df, "RE123", frac=0.3)
-
-    # df_plot = df.sort_index()
-
-    # print(df_plot["str3 :"].value_counts())
-    # print(df_plot["str3 :"].value_counts().index)
-
-    # df_plot.to_csv("/home/reag2/PhD/first-year/apical/processed/super_plot.csv", index=True , header=True)
-
-    # add these points back in manually for the n=3 materials as they have lower Tc but are needed to see the trend.
-    # df_manual = df.loc[[8670,8671,6003,4526]]
-
     # TAKE THE TOP 20% FOR EACH FAMILY
-    # break this down to work for Ba and Sr sub-families
+
     for fam in families:
+        id_df = (df["str3 :"] == fam)
+        X = df[id_df][["lata :", "latc :"]].values
+        model = KMeans(n_clusters=2, random_state=0).fit(X)
+        cluster_super = model.predict(X)
+        df.at[id_df, "cid :"] = cluster_super
 
-        if fam in split:
-            for cid in [0,1]:
-                cid_df = (df["str3 :"] == fam) & (df["cid :"] == cid)
-                cid_df = cid_df.index.values[cid_df.values]
-                X = df.loc[cid_df, ["tc :"]].values.ravel()
-                sort = np.argsort(X)
-                cid_df = cid_df[sort]
-                cid_df = cid_df[:-int(len(cid_df)/5)]
-                df = df.drop(cid_df)
-
-        else:
-            id_df = (df["str3 :"] == fam)
-            id_df = id_df.index.values[id_df.values]
-            X = df.loc[id_df, ["tc :"]].values.ravel()
+        split_id = []
+        for cid in [0,1]:
+            cid_df = (df[id_df]["cid :"] == cid)
+            cid_df = cid_df.index.values[cid_df.values]
+            X = df.loc[cid_df][["tc :"]].values.ravel()
             sort = np.argsort(X)
-            id_df = id_df[sort]
-            id_df = id_df[:-int(len(id_df)/5)]
-            df = df.drop(id_df)
+            cid_df = cid_df[sort]
+            # print(fam, max(1,int(len(cid_df)/5)))
+            split_id += list(cid_df[:-max(2,int(len(cid_df)/5))])
 
-    df = pd.concat([df, df_manual,])
+        df = df.drop(split_id)
+
+    print(min(icsd["str3 :"].value_counts()))
+
+    print(df["str3 :"].value_counts()/icsd["str3 :"].value_counts())
+    print(pd.unique(df["str3 :"]))
+
+    print("Number left reference {}".format(len(df.index)))
 
     df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_top.csv", index=True , header=True)
-
-    # TAKE THE TOP 20% ON A GRID
-
-    # apical_bin = pd.cut(df["cu-o_a :"].values, 50)
-    # planar_bin = pd.cut(df["cu-o_p :"].values, 50)
-    # sep = df.groupby([apical_bin, apical_bin])
-
-    # print(sep.to_string())
-
 
 def sub_sample(df, family, frac = 0.3, alpha=2.0):
     mask = np.asarray(df["str3 :"] == family).nonzero()
     n = int(len(mask[0])*frac)
     print("\t{} of family {} found, taking {} as a sample".format(len(mask[0]), family, n))
     sample = df.iloc[mask].sample(n=n, weights=np.power(df.iloc[mask]["tc :"].values, alpha), random_state=0)
-
     df = df.drop(df.index[mask])
     df = df.append(sample)
     return df

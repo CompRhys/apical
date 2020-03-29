@@ -28,14 +28,12 @@ def get_Cu_O_dist(species, distances):
     # round the values as we cannot measure to the calculated accuracy
     # dist_cu_o = np.floor(1e4*dist_cu_o)/1e4
     dist_cu_o = np.unique(np.floor(1e4*dist_cu_o)/1e4)
-    print(dist_cu_o)
 
     in_plane = [x for x in dist_cu_o.ravel() if (1.8 <= x < 2.0)]
     apical = [x for x in dist_cu_o.ravel() if (2.0 <= x < 2.9)]
-    print(apical, in_plane)
 
     # Only take structures where we have a single apical distance
-    if (len(apical) == 0) or (len(in_plane) == 0):
+    if (len(apical) != 1) or (len(in_plane) == 0):
         return None, None
     else:
         in_plane = np.median(in_plane)
@@ -54,73 +52,41 @@ def get_La_La_dist(species, distances):
 
     return dist_la_la[1]    
 
-def plot_and_fit(x, y, fit=True):
-    """
-    """
-    assert x.shape[0] == y.shape[0]
-    assert len(y.shape) == 1
-    if len(x.shape)==1:
-        x = x.reshape(-1,1)
-
-    plt.figure(figsize=(10,8))
-    plt.scatter(x, y)
-
-    if fit:
-        reg = LinearRegression()
-        huber = HuberRegressor()
-
-        reg.fit(x, y)
-        slope = reg.coef_.ravel()
-        intercept = reg.intercept_
-        
-        huber.fit(x, y)
-        h_slope = huber.coef_
-        h_intercept = huber.intercept_
-
-        print("Huber {:.3f} {:.3f}".format(h_slope[0], h_intercept,))
-        print("Linear {:.3f} {:.3f}".format(slope[0], intercept, ))
-
-        ends = np.array((min(x),max(x)))
-        lin = ends*slope + intercept
-        h_lin = ends*h_slope + h_intercept
-
-        h_lin = ends*h_slope + h_intercept
-        plt.plot(ends,lin, 'r--')
-        plt.plot(ends,h_lin, 'g--')
-
-
 def main(folder):
 
     df = pd.DataFrame()
 
-    failed = 0
+    fail_dict = {}
 
     subfolders = [ f.name for f in os.scandir(folder) if f.is_dir() ]
     # print(subfolders)
     # exit()
 
     for subdir in subfolders:
+        failed = 0
         for file in os.listdir(folder+subdir):
             try:
                 col_id = int(re.findall('\d+', file.split("_")[-1])[0])
                 # if col_id not in [63209, 69884]:
                 #     continue
                 struct = mg.Structure.from_file(folder+subdir+'/'+file)
-                
+                comp = ''.join(struct.formula.split())
                 distances = struct.distance_matrix
                 species = struct.species_and_occu
                 lat_a, lat_b, lat_c = struct.lattice.abc
-                print(lat_a, lat_b)
                 in_plane, apical  = get_Cu_O_dist(species, distances)
                 
                 if apical is not None:
                     if col_id == 68947:
-                        df = df.append(pd.Series((col_id, subdir, lat_c, lat_b, lat_a, apical, in_plane, None)), ignore_index=True)
-                    if subdir == 'T':
+                        df = df.append(pd.Series((col_id, subdir, comp, 
+                                        lat_c, lat_b, lat_a, apical, in_plane, None)), ignore_index=True)
+                    elif subdir == 'T':
                         la_block = get_La_La_dist(species, distances)
-                        df = df.append(pd.Series((col_id, subdir, lat_a, lat_b, lat_c, apical, in_plane, la_block)), ignore_index=True)
+                        df = df.append(pd.Series((col_id, subdir, comp, 
+                                        lat_a, lat_b, lat_c, apical, in_plane, la_block)), ignore_index=True)
                     else:
-                        df = df.append(pd.Series((col_id, subdir, lat_a, lat_b, lat_c, apical, in_plane, None)), ignore_index=True)
+                        df = df.append(pd.Series((col_id, subdir, comp, 
+                                        lat_a, lat_b, lat_c, apical, in_plane, None)), ignore_index=True)
                 else:
                     failed +=1
 
@@ -130,22 +96,20 @@ def main(folder):
                 else:
                     failed += 1
                     continue
+        fail_dict[subdir] = failed
                 
+    print(fail_dict)
 
-    # fig, ax = plt.subplots(2,figsize=(10,8))
-    # ax[0].hist(data[:,4], bins=50, alpha=0.3)
-    # ax[1].hist(data[:,5], bins=50, alpha=0.3)
+    df.columns = ["col_id :", "str3 :", "composition :",
+                                "lata :", "latb :", "latc :", 
+                                "cu-o_a :", "cu-o_p* :", "d_la :"]
+    sqrt2 = np.sqrt(2)
+    ortho = lambda x: x/sqrt2 if x > 5 else x
+    comparable = np.vectorize(ortho)
 
-    # plot_and_fit(data[:,3], data[:,4])
-    # plot_and_fit(data[:,1], data[:,3], fit=False)
-    # # plot_and_fit(la, api)
-    # # plot_and_fit(la, api)
-    # # plot_and_fit(lat_a_list.reshape(-1,1), plnr)
-
-    # plt.show()
-
-    print("{} failed".format(failed,))
-    df.to_csv("processed-data/icsd_scrape.csv", header=["col_id :", "str3 :", "lata :", "latb :", "latc :", "cu-o_a :", "cu-o_p :", "d_la :"])
+    df["cu-o_p :"] = comparable(df["lata :"].values)/2.
+    df["col_id :"] = df["col_id :"].astype(int) 
+    df.to_csv("processed-data/icsd_scrape.csv", index=False)
     pass
 
 

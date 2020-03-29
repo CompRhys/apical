@@ -22,6 +22,10 @@ composition = ["ma1 :", "ma2 :", "mb1 :", "mb2 :", "mc1 :", "mc2 :",
 
 clean = ["composition :", "str3 :", "tc :", "lata :", "latb :", "latc :", "refno :"]
 
+sqrt2 = np.sqrt(2)
+ortho = lambda x: x/sqrt2 if x > 5 else x
+comparable = np.vectorize(ortho)
+
 def main():
     df = pd.read_csv("/home/reag2/PhD/datasets/superconductivity/supercon/full.csv", index_col=0)
 
@@ -90,8 +94,16 @@ def main():
     df = df[~(df["str3 :"]=="Y247")]
     df = df[~(df["str3 :"]=="RE247")]
 
+    mask = (df["str3 :"]=="RE124") & (df["latc :"]<27.05)
+    df = df[~mask]
+
+    mask = (df["str3 :"]=="Y123") & (df["latc :"]<11.45)
+    df = df[~mask]
+
     df = df.sort_index()    
 
+
+    df["lata* :"] = comparable(df["lata :"].values)
     df.to_csv("/home/reag2/PhD/first-year/apical/processed-data/super_cleaned.csv", index=True , header=True)
 
     print("Number for which we have 10 or more samples {}".format(len(df.index)))
