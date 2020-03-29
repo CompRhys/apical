@@ -106,4 +106,5 @@ venv.bak/
 icsd/cifs/*
 icsd/zips/*
 
-*.html
+plot/plotly/*
+plot/pyplot/*
