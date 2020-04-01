@@ -67,9 +67,9 @@ def main():
     ortho = lambda x: x/np.sqrt(2) if x > 5 else x
     comparable = np.vectorize(ortho)
 
-    df["lata* :"] = comparable(df["lata :"])
+    df["lata* :"] = comparable(df["lata* :"])
     df["cu-o_p :"] = df["lata* :"].values/2.
-    icsd["lata* :"] = comparable(icsd["lata :"])
+    icsd["lata* :"] = comparable(icsd["lata* :"])
 
     huber = HuberRegressor()
 

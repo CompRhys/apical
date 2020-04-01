@@ -107,9 +107,11 @@ def main(folder):
     ortho = lambda x: x/sqrt2 if x > 5 else x
     comparable = np.vectorize(ortho)
 
+    df["lata* :"] = df[["lata :", "latb :"]].mean(axis=1)
+
     df["cu-o_p :"] = comparable(df["lata :"].values)/2.
     df["col_id :"] = df["col_id :"].astype(int) 
-    df.to_csv("processed-data/icsd_scrape.csv", index=False)
+    df.to_csv("processed-data/icsd_cuprates.csv", index=False)
     pass
 
 

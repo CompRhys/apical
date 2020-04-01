@@ -4,13 +4,13 @@ import os
 import sys
 import re
 
-df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_scrape.csv", index_col=0)
+df = pd.read_csv("/home/reag2/PhD/first-year/apical/processed-data/icsd_cuprates.csv", index_col=0)
 
 sqrt2 = np.sqrt(2)
 ortho = lambda x: x/sqrt2 if x > 5 else x
 comparable = np.vectorize(ortho)
 
-df["lata* :"] = comparable(df["lata :"].values)
+df["lata* :"] = comparable(df["lata* :"].values)
 
 anom_index = [  # id        reason
                 74094, # Hg1201 half Pb an low apical distance
@@ -45,6 +45,8 @@ anom_index = [  # id        reason
 
                 80710, # Bi2212 inclusion of La not reflected in supercon
                 91466, 174156, # Bi2212 Cu-O_a very low
+
+                63428, # Y123 lattice parameters too large
  
             ]
 
