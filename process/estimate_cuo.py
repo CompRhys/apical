@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 
 from sklearn.linear_model import HuberRegressor, LinearRegression
 
-layer_dict = {  'Bi2201' : "One", 
+layer_dict = {  'Bi2201' : "One",
                 'Bi2212' : "Two",
                 'Hg1201' : "One",
                 'Hg1212' : "Two",
@@ -14,7 +14,7 @@ layer_dict = {  'Bi2201' : "One",
                 'Hg2212' : "Two",
                 'RE123'  : "Two",
                 'RE124'  : "Two",
-                'T'      : "One",   
+                'T'      : "One",
                 'Tl1201' : "One",
                 'Tl1212' : "Two",
                 'Tl1223' : "Three",
@@ -24,7 +24,7 @@ layer_dict = {  'Bi2201' : "One",
                 'Y124'   : "Two",
                 }
 
-type_dict = {  'Bi2201' : "Bi", 
+type_dict = {  'Bi2201' : "Bi",
                 'Bi2212' : "Bi",
                 'Hg1201' : "Hg",
                 'Hg1212' : "Hg",
@@ -32,7 +32,7 @@ type_dict = {  'Bi2201' : "Bi",
                 'Hg2212' : "Hg",
                 'RE123'  : "RE",
                 'RE124'  : "RE",
-                'T'      : "RE",   
+                'T'      : "RE",
                 'Tl1201' : "Tl",
                 'Tl1212' : "Tl",
                 'Tl1223' : "Tl",
@@ -71,6 +71,7 @@ def main():
     df["cu-o_p :"] = df["lata* :"].values/2.
     icsd["lata* :"] = comparable(icsd["lata* :"])
 
+    # huber = LinearRegression()
     huber = HuberRegressor()
 
     for fam in families:
@@ -85,6 +86,9 @@ def main():
         c_df = df[id_df][["latc :", "lata* :"]].values
 
         api_est = huber.predict(c_df)
+
+        # if fam in ["T", "Y123", "Hg1223"]:
+        #     print(fam, huber.coef_, huber.intercept_)
 
         if fam == "T":
             print(huber.predict(((13.28, 3.76),)))

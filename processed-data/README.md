@@ -1,8 +1,8 @@
 # Data Guide
 
-In all cases whilst compiling this data we have been careful to include as much meta-information as possible to allow data to be traced back to it's original sources. For SuperCon this takes the form of the SuperCon "num :" reference id and then the source publication for ICSD we provide the ICSD collection code.
+In all cases whilst compiling this data we have been careful to include as much meta-information as possible to allow data to be traced back to it's original sources. For SuperCon this takes the form of the SuperCon "num :" reference id and then the source publication details. For ICSD we provide the ICSD collection code.
 
-We acknowledge the huge efforts of The Japanese National Institute for Materials Science for maintaining the [SuperCon](https://supercon.nims.go.jp/index_en.html) database as well as FIZ Karlsruhe GmbH for maintaining [ICSD](https://www.fiz-karlsruhe.de/en/produkte-und-dienstleistungen/inorganic-crystal-structure-database-icsd). 
+We acknowledge the Japanese National Institute for Materials Science for maintaining the [SuperCon](https://supercon.nims.go.jp/index_en.html) database as well as FIZ Karlsruhe GmbH for maintaining [ICSD](https://www.fiz-karlsruhe.de/en/produkte-und-dienstleistungen/inorganic-crystal-structure-database-icsd).
 
 ## super_cuprates
 
