@@ -1,4 +1,4 @@
-## Data for paper "Predicting lithium iron oxysulphides for battery cathodes"
+## DFT calculation data with full provenance and analysis code
 
 Content of the repository
 
