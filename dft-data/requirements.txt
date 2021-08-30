@@ -1,0 +1,7 @@
+aiida-core==1.6.3
+ase~=3.21
+aiida-castep
+tqdm
+pandas
+seaborn
+plotly
